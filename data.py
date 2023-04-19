@@ -2,7 +2,6 @@ import sqlite3
 import json
 import os
 import requests
-import pandas as pd
 import re
 
 
@@ -29,14 +28,16 @@ def read_econdb(api): #read in layoff rate from EconDB
     # Iterate over values and dates lists, and create a dictionary for each record
     for i in range(len(values)):
         dict_record = {
-           'dates': dates[i],
-          'values': values[i]
+           'date': dates[i],
+          'value': values[i]
         }
         list_of_dicts.append(dict_record)
 
     # Filter the data from year 2001 to 2022
-    filtered = [d for d in list_of_dicts if "2001" <= d['dates'][:4] <= "2022"]
-
+    filtered = [d for d in list_of_dicts if "2001" <= d['date'][:4] <= "2022"]
+    # keep year and month only
+    for dic in filtered:
+        dic['date'] = dic['date'][0:7]
     return filtered
 
 def read_umempoylemnt():
@@ -47,7 +48,10 @@ def read_umempoylemnt():
     month_umemploy = data_umemploy['data'] 
     # filter the data in the range from 2001 to 2022
     filtered_month_umemploy = [d for d in month_umemploy if "2001" <= d['date'][:4] <= "2022"]
+    for dic in filtered_month_umemploy:
+        dic['date'] = dic['date'][0:7]
     return(filtered_month_umemploy)
+
 
 def read_cpi():
     url2 = 'https://www.alphavantage.co/query?function=CPI&interval=monthly&apikey=8A43BBMGTP1CUXUK'
@@ -57,7 +61,8 @@ def read_cpi():
 
     # filter the data in the range from 2001 to 2022
     filtered_month_cpi = [d for d in month_cpi if "2001" <= d['date'][:4] <= "2022"]
-
+    for dic in filtered_month_cpi:
+        dic['date'] = dic['date'][0:7]
     return(filtered_month_cpi)
 
 def read_avg_interest_rate():
@@ -117,9 +122,9 @@ def create_layoff_table(cur,conn,df):
 
     # Insert the entries into the 'Layoff_Rate' table
     for dict in df:
-        date = str(dict['dates'])
-        month = re.findall("(\d{4}-\d{2})-\d{2}", date)
-        layoff = dict['values']
+        date = str(dict['date'])
+        month = re.findall("(\d{4}-\d{2})", date)
+        layoff = dict['value']
 
         cur.execute("""INSERT INTO Layoff_Rate (date, layoff_rate)VALUES (?, ?)""", (month[0], layoff))
 
@@ -130,10 +135,8 @@ def main():
     #API for EconDB
     API = '46c24fbb4887bf33205204f709392879bdae6177'
     lay_off_data = read_econdb(API)
-    print(lay_off_data)
     umempoylemnt_data=read_umempoylemnt()
     cpi_data=read_cpi()
-    print(cpi_data)
 
     # set up database
     cur, conn = setUpDatabase('umemployment_data.db')
