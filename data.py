@@ -60,6 +60,29 @@ def read_cpi():
 
     return(filtered_month_cpi)
 
+def setUpDatabase(db_name): # function to set up database
+    path = os.path.dirname(os.path.abspath(__file__))
+    conn = sqlite3.connect(path+'/'+db_name)
+    cur = conn.cursor()
+    return cur, conn
+
+
+def create_layoff_table(cur,conn,df): 
+
+    # create Layoff_Rate table in database
+    cur.execute("DROP TABLE IF EXISTS Layoff_Rate")
+    cur.execute("CREATE TABLE Layoff_Rate (date TEXT, layoff_rate NUMBER)")
+
+    # Insert the entries into the 'Layoff_Rate' table
+    for dict in df:
+        date = str(dict['dates'])
+        layoff = dict['values']
+
+        cur.execute("""INSERT INTO Layoff_Rate (date, layoff_rate)VALUES (?, ?)""", (date, layoff))
+
+    #commit changes
+    conn.commit()
+
 def main():
     #API for EconDB
     API = '46c24fbb4887bf33205204f709392879bdae6177'
@@ -67,9 +90,12 @@ def main():
     print(lay_off_data)
     umempoylemnt_data=read_umempoylemnt()
     cpi_data=read_cpi()
-
-
     print(cpi_data)
+
+    # set up database
+    cur, conn = setUpDatabase('umemployment_data.db')
+    # create Layoff_Rate table
+    create_layoff_table(cur,conn,lay_off_data)
    
 
     
