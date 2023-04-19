@@ -39,13 +39,37 @@ def read_econdb(api): #read in layoff rate from EconDB
 
     return filtered
 
+def read_umempoylemnt():
+    # collect data for umempoylemnt rate 
+    url = 'https://www.alphavantage.co/query?function=NONFARM_PAYROLL&apikey=8A43BBMGTP1CUXUK'
+    r1 = requests.get(url)
+    data_umemploy = r1.json()
+    month_umemploy = data_umemploy['data'] 
+    # filter the data in the range from 2001 to 2022
+    filtered_month_umemploy = [d for d in month_umemploy if "2001" <= d['date'][:4] <= "2022"]
+    return(filtered_month_umemploy)
+
+def read_cpi():
+    url2 = 'https://www.alphavantage.co/query?function=CPI&interval=monthly&apikey=8A43BBMGTP1CUXUK'
+    r2 = requests.get(url2)
+    data_cpi = r2.json()
+    month_cpi = data_cpi['data'] 
+
+    # filter the data in the range from 2001 to 2022
+    filtered_month_cpi = [d for d in month_cpi if "2001" <= d['date'][:4] <= "2022"]
+
+    return(filtered_month_cpi)
 
 def main():
     #API for EconDB
     API = '46c24fbb4887bf33205204f709392879bdae6177'
-    d = read_econdb(API)
-    print(d)
+    lay_off_data = read_econdb(API)
+    print(lay_off_data)
+    umempoylemnt_data=read_umempoylemnt()
+    cpi_data=read_cpi()
 
+
+    print(cpi_data)
    
 
     
