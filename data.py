@@ -118,9 +118,10 @@ def create_layoff_table(cur,conn,df):
     # Insert the entries into the 'Layoff_Rate' table
     for dict in df:
         date = str(dict['dates'])
+        month = re.findall("(\d{4}-\d{2})-\d{2}", date)
         layoff = dict['values']
 
-        cur.execute("""INSERT INTO Layoff_Rate (date, layoff_rate)VALUES (?, ?)""", (date, layoff))
+        cur.execute("""INSERT INTO Layoff_Rate (date, layoff_rate)VALUES (?, ?)""", (month[0], layoff))
 
     #commit changes
     conn.commit()
