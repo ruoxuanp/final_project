@@ -161,16 +161,24 @@ def setUpDatabase(db_name): # function to set up database
 def create_layoff_table(cur,conn,df): 
 
     # create Layoff_Rate table in database
-    cur.execute("DROP TABLE IF EXISTS Layoff_Rate")
-    cur.execute("CREATE TABLE Layoff_Rate (date INTEGER PRIMARY KEY, layoff_rate NUMBER)")
+    cur.execute("CREATE TABLE IF NOT EXISTS Layoff_Rate(id INTEGER PRIMARY KEY, date INTEGER, layoff_rate NUMBER)")
+    conn.commit()
 
+def add_to_layoff_table(cur,conn,df):
+    cur.execute("SELECT MAX(id) FROM Layoff_Rate")
+    result = cur.fetchone()
+    if result[0] is None:
+        # if there are no entries in the table, set the starting ID to 1
+        id = 1
+    else:
+        id = result[0]
+
+    for i in range((id-1),(id+21)):
+        date = df[i]['date']
+        layoff = df[i]['value']
+        intkey = i+2
+        cur.execute("""INSERT INTO Layoff_Rate (id, date, layoff_rate)VALUES (?, ?, ?)""", (intkey, date, layoff))
     # Insert the entries into the 'Layoff_Rate' table
-    for dict in df:
-        date = dict['date']
-        layoff = dict['value']
-
-        cur.execute("""INSERT INTO Layoff_Rate (date, layoff_rate)VALUES (?, ?)""", (date, layoff))
-
     #commit changes
     conn.commit()
 
@@ -185,6 +193,7 @@ def main():
     cur, conn = setUpDatabase('umemployment_data.db')
     # create Layoff_Rate table
     create_layoff_table(cur,conn,lay_off_data)
+    add_to_layoff_table(cur,conn,lay_off_data)
    
 
     
