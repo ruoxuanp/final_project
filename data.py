@@ -41,18 +41,19 @@ def read_econdb(api): #read in layoff rate from EconDB
 
     return filtered
 
-def read_umempoylemnt():
-    # collect data for umempoylemnt rate 
-    url = 'https://www.alphavantage.co/query?function=NONFARM_PAYROLL&apikey=8A43BBMGTP1CUXUK'
+def read_unemployment():
+    # collect data for unemployment rate 
+    url = 'https://www.alphavantage.co/query?function=UNEMPLOYMENT&apikey=8A43BBMGTP1CUXUK'
     r1 = requests.get(url)
-    data_umemploy = r1.json()
-    month_umemploy = data_umemploy['data'] 
+    data_unemploy = r1.json()
+    month_unemploy = data_unemploy['data'] 
     # filter the data in the range from 2001 to 2022
-    filtered_month_umemploy = [d for d in month_umemploy if "2001" <= d['date'][:4] <= "2022"]
-    for dic in filtered_month_umemploy:
+    filtered_month_unemploy = [d for d in month_unemploy if "2001" <= d['date'][:4] <= "2022"]
+    
+    for dic in filtered_month_unemploy:
         dic['date'] = dic['date'][0:7]
-
-    return(filtered_month_umemploy)
+    filtered_month_unemploy.reverse()
+    return(filtered_month_unemploy)
 
 
 def read_cpi():
@@ -63,9 +64,11 @@ def read_cpi():
 
     # filter the data in the range from 2001 to 2022
     filtered_month_cpi = [d for d in month_cpi if "2001" <= d['date'][:4] <= "2022"]
+    
     for dic in filtered_month_cpi:
         dic['date'] = dic['date'][0:7]
-
+    
+    filtered_month_cpi.reverse()
     return(filtered_month_cpi)
 
 def read_ir_marketable():
@@ -238,11 +241,11 @@ def add_to_ir_non_marketable_table(cur,conn,df):
 def create_unemployment_table(cur,conn,df): 
 
     # create Layoff_Rate table in database
-    cur.execute("CREATE TABLE IF NOT EXISTS Unemployment_Rate(id INTEGER PRIMARY KEY, date INTEGER, unemployment_rate NUMBER)")
+    cur.execute("CREATE TABLE IF NOT EXISTS Unemployment(id INTEGER PRIMARY KEY, date INTEGER, unemployment NUMBER)")
     conn.commit()
 
 def add_to_unemployment_table(cur,conn,df):
-    cur.execute("SELECT MAX(id) FROM Unemployment_Rate")
+    cur.execute("SELECT MAX(id) FROM Unemployment")
     result = cur.fetchone()
     if result[0] is None:
         # if there are no entries in the table, set the starting ID to 1
@@ -254,7 +257,7 @@ def add_to_unemployment_table(cur,conn,df):
         date = df[i]['date']
         unemployment = df[i]['value']
         intkey = i+1
-        cur.execute("""INSERT INTO Unemployment_Rate (id, date, unemployment_rate)VALUES (?, ?, ?)""", (intkey, date, unemployment))
+        cur.execute("""INSERT INTO Unemployment (id, date, unemployment)VALUES (?, ?, ?)""", (intkey, date, unemployment))
     # Insert the entries into the 'Layoff_Rate' table
     #commit changes
     conn.commit()
@@ -287,22 +290,22 @@ def main():
     #API for EconDB
     API = '46c24fbb4887bf33205204f709392879bdae6177'
     lay_off_data = read_econdb(API)
-    umempoylemnt_data=read_umempoylemnt()
+    unemployment_data=read_unemployment()
     cpi_data=read_cpi()
     ir_marketable_data = read_ir_marketable()
     ir_non_marketable_data = read_ir_non_marketable()
 
     # set up database
     cur, conn = setUpDatabase('umemployment_data.db')
-    # create Layoff_Rate table
+
     create_layoff_table(cur,conn,lay_off_data)
     add_to_layoff_table(cur,conn,lay_off_data)
     create_ir_marketable_table(cur,conn,ir_marketable_data)
     add_to_ir_marketable_table(cur,conn,ir_marketable_data)
     create_ir_non_marketable_table(cur,conn,ir_non_marketable_data)
     add_to_ir_non_marketable_table(cur,conn,ir_non_marketable_data)
-    create_unemployment_table(cur,conn,umempoylemnt_data)
-    add_to_unemployment_table(cur,conn,umempoylemnt_data)
+    create_unemployment_table(cur,conn,unemployment_data)
+    add_to_unemployment_table(cur,conn,unemployment_data)
     create_cpi_table(cur,conn,cpi_data)
     add_to_cpi_table(cur,conn,cpi_data)
     
