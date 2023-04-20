@@ -38,6 +38,7 @@ def read_econdb(api): #read in layoff rate from EconDB
     # keep year and month only
     for dic in filtered:
         dic['date'] = dic['date'][0:7]
+        dic['date'] = int(dic['date'].replace("-", ""))
     return filtered
 
 def read_umempoylemnt():
@@ -120,15 +121,14 @@ def create_layoff_table(cur,conn,df):
 
     # create Layoff_Rate table in database
     cur.execute("DROP TABLE IF EXISTS Layoff_Rate")
-    cur.execute("CREATE TABLE Layoff_Rate (date TEXT, layoff_rate NUMBER)")
+    cur.execute("CREATE TABLE Layoff_Rate (date INTEGER PRIMARY KEY, layoff_rate NUMBER)")
 
     # Insert the entries into the 'Layoff_Rate' table
     for dict in df:
-        date = str(dict['date'])
-        month = re.findall("(\d{4}-\d{2})", date)
+        date = dict['date']
         layoff = dict['value']
 
-        cur.execute("""INSERT INTO Layoff_Rate (date, layoff_rate)VALUES (?, ?)""", (month[0], layoff))
+        cur.execute("""INSERT INTO Layoff_Rate (date, layoff_rate)VALUES (?, ?)""", (date, layoff))
 
     #commit changes
     conn.commit()
