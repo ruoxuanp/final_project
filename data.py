@@ -169,21 +169,24 @@ def add_to_layoff_table(cur,conn,df):
     cur.execute("SELECT MAX(id) FROM Layoff_Rate")
     result = cur.fetchone()
     if result[0] is None:
-        # if there are no entries in the table, set the starting ID to 1
+        # if there are no entries in the table, set the starting ID to 0
         id = 0
     else:
         id = result[0]
+    
+    if id < 264:
+        id += 1
 
-    id += 1
-
-    for i in range((id-1),(id+21)):
-        date = df[i]['date']
-        layoff = df[i]['value']
-        intkey = i+1
-        cur.execute("""INSERT INTO Layoff_Rate (id, date, layoff_rate)VALUES (?, ?, ?)""", (intkey, date, layoff))
-    # Insert the entries into the 'Layoff_Rate' table
-    #commit changes
-    conn.commit()
+        for i in range((id-1),(id+21)):
+            date = df[i]['date']
+            layoff = df[i]['value']
+            intkey = i+1
+            cur.execute("""INSERT INTO Layoff_Rate (id, date, layoff_rate)VALUES (?, ?, ?)""", (intkey, date, layoff))
+        # Insert the entries into the 'Layoff_Rate' table
+        #commit changes
+        conn.commit()
+    else:
+        print("Layoff_Rate Finished")
 
 
 def create_ir_marketable_table(cur,conn,df): 
@@ -196,21 +199,24 @@ def add_to_ir_marketable_table(cur,conn,df):
     cur.execute("SELECT MAX(id) FROM IR_Marketable")
     result = cur.fetchone()
     if result[0] is None:
-        # if there are no entries in the table, set the starting ID to 1
+        # if there are no entries in the table, set the starting ID to 0
         id = 0
     else:
         id = result[0]
 
-    id += 1
+    if id < 264:
+        id += 1
 
-    for i in range((id-1),(id+21)):
-        date = df[i]['date']
-        avg_ir = df[i]['avg_interest_rate_amt']
-        intkey = i+1
-        cur.execute("""INSERT INTO IR_Marketable (id, date, avg_interest_rate_amt) VALUES (?, ?, ?)""", (intkey, date, avg_ir))
-    # Insert the entries into the 'Layoff_Rate' table
-    #commit changes
-    conn.commit()
+        for i in range((id-1),(id+21)):
+            date = df[i]['date']
+            avg_ir = df[i]['avg_interest_rate_amt']
+            intkey = i+1
+            cur.execute("""INSERT INTO IR_Marketable (id, date, avg_interest_rate_amt) VALUES (?, ?, ?)""", (intkey, date, avg_ir))
+        # Insert the entries into the 'Layoff_Rate' table
+        #commit changes
+        conn.commit()
+    else:
+        print("IR_Marketable Finished")
 
 def create_ir_non_marketable_table(cur,conn,df): 
 
@@ -222,21 +228,24 @@ def add_to_ir_non_marketable_table(cur,conn,df):
     cur.execute("SELECT MAX(id) FROM IR_Non_Marketable")
     result = cur.fetchone()
     if result[0] is None:
-        # if there are no entries in the table, set the starting ID to 1
+        # if there are no entries in the table, set the starting ID to 0
         id = 0
     else:
         id = result[0]
 
-    id += 1
+    if id < 264:
+        id += 1
 
-    for i in range((id-1),(id+21)):
-        date = df[i]['date']
-        avg_ir = df[i]['avg_interest_rate_amt']
-        intkey = i+1
-        cur.execute("""INSERT INTO IR_Non_Marketable (id, date, avg_interest_rate_amt) VALUES (?, ?, ?)""", (intkey, date, avg_ir))
-    # Insert the entries into the 'Layoff_Rate' table
-    #commit changes
-    conn.commit()
+        for i in range((id-1),(id+21)):
+            date = df[i]['date']
+            avg_ir = df[i]['avg_interest_rate_amt']
+            intkey = i+1
+            cur.execute("""INSERT INTO IR_Non_Marketable (id, date, avg_interest_rate_amt) VALUES (?, ?, ?)""", (intkey, date, avg_ir))
+        # Insert the entries into the 'Layoff_Rate' table
+        #commit changes
+        conn.commit()
+    else:
+        print("IR_Non_Marketable Finished")
 
 def create_unemployment_table(cur,conn,df): 
 
@@ -248,19 +257,23 @@ def add_to_unemployment_table(cur,conn,df):
     cur.execute("SELECT MAX(id) FROM Unemployment")
     result = cur.fetchone()
     if result[0] is None:
-        # if there are no entries in the table, set the starting ID to 1
+        # if there are no entries in the table, set the starting ID to 0
         id = 0
     else:
         id = result[0]
-    id += 1
-    for i in range((id-1),(id+21)):
-        date = df[i]['date']
-        unemployment = df[i]['value']
-        intkey = i+1
-        cur.execute("""INSERT INTO Unemployment (id, date, unemployment)VALUES (?, ?, ?)""", (intkey, date, unemployment))
-    # Insert the entries into the 'Layoff_Rate' table
-    #commit changes
-    conn.commit()
+    
+    if id < 264:
+        id += 1
+        for i in range((id-1),(id+21)):
+            date = df[i]['date']
+            unemployment = df[i]['value']
+            intkey = i+1
+            cur.execute("""INSERT INTO Unemployment (id, date, unemployment)VALUES (?, ?, ?)""", (intkey, date, unemployment))
+        # Insert the entries into the 'Layoff_Rate' table
+        #commit changes
+        conn.commit()
+    else:
+        print("Unemployment Finished")
 
 def create_cpi_table(cur,conn,df): 
 
@@ -272,19 +285,23 @@ def add_to_cpi_table(cur,conn,df):
     cur.execute("SELECT MAX(id) FROM Cpi_Rate")
     result = cur.fetchone()
     if result[0] is None:
-        # if there are no entries in the table, set the starting ID to 1
+        # if there are no entries in the table, set the starting ID to 0
         id = 0
     else:
         id = result[0]
-    id += 1
-    for i in range((id-1),(id+21)):
-        date = df[i]['date']
-        cpi = df[i]['value']
-        intkey = i+1
-        cur.execute("""INSERT INTO Cpi_Rate (id, date, cpi)VALUES (?, ?, ?)""", (intkey, date, cpi))
-    # Insert the entries into the 'Layoff_Rate' table
-    #commit changes
-    conn.commit()
+    
+    if id < 264:
+        id += 1
+        for i in range((id-1),(id+21)):
+            date = df[i]['date']
+            cpi = df[i]['value']
+            intkey = i+1
+            cur.execute("""INSERT INTO Cpi_Rate (id, date, cpi)VALUES (?, ?, ?)""", (intkey, date, cpi))
+        # Insert the entries into the 'Layoff_Rate' table
+        #commit changes
+        conn.commit()
+    else:
+        print("Cpi_Rate Finished")
 
 def main():
     #API for EconDB
