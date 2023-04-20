@@ -27,7 +27,7 @@ def add_to_layoff_table(cur,conn,df):
     if id < 120:
         id += 1
 
-        for i in range((id-1),(id+19)):
+        for i in range((id-1),(id+23)):
             date = df[i]['date']
             layoff = df[i]['value']
             intkey = i+1
@@ -57,7 +57,7 @@ def add_to_ir_non_marketable_table(cur,conn,df):
     if id < 120:
         id += 1
 
-        for i in range((id-1),(id+19)):
+        for i in range((id-1),(id+23)):
             date = df[i]['date']
             avg_ir = df[i]['avg_interest_rate_amt']
             intkey = i+1
@@ -85,7 +85,7 @@ def add_to_unemployment_table(cur,conn,df):
     
     if id < 120:
         id += 1
-        for i in range((id-1),(id+19)):
+        for i in range((id-1),(id+23)):
             date = df[i]['date']
             unemployment = df[i]['value']
             intkey = i+1
@@ -113,7 +113,7 @@ def add_to_cpi_table(cur,conn,df):
     
     if id < 120:
         id += 1
-        for i in range((id-1),(id+19)):
+        for i in range((id-1),(id+23)):
             date = df[i]['date']
             cpi = df[i]['value']
             intkey = i+1
