@@ -50,6 +50,7 @@ def read_umempoylemnt():
     filtered_month_umemploy = [d for d in month_umemploy if "2001" <= d['date'][:4] <= "2022"]
     for dic in filtered_month_umemploy:
         dic['date'] = dic['date'][0:7]
+        dic['date'] = int(dic['date'].replace("-", ""))
     return(filtered_month_umemploy)
 
 
@@ -63,6 +64,7 @@ def read_cpi():
     filtered_month_cpi = [d for d in month_cpi if "2001" <= d['date'][:4] <= "2022"]
     for dic in filtered_month_cpi:
         dic['date'] = dic['date'][0:7]
+        dic['date'] = int(dic['date'].replace("-", ""))
     return(filtered_month_cpi)
 
 def read_avg_interest_rate():
