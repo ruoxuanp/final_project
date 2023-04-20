@@ -96,7 +96,7 @@ def read_avg_interest_rate():
             inner_d = dict()
             ym_data = re.findall(date_re, item['record_date'])
             for i in ym_data:
-                inner_d['record_date'] = i
+                inner_d['record_date'] = int(i.replace('-', ''))
 
             inner_d['security_desc'] = item['security_desc']
             inner_d['avg_interest_rate_amt'] = item['avg_interest_rate_amt']
