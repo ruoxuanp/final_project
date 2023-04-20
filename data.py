@@ -38,7 +38,7 @@ def read_econdb(api): #read in layoff rate from EconDB
     # keep year and month only
     for dic in filtered:
         dic['date'] = dic['date'][0:7]
-        dic['date'] = int(dic['date'].replace("-", ""))
+
     return filtered
 
 def read_umempoylemnt():
@@ -51,7 +51,7 @@ def read_umempoylemnt():
     filtered_month_umemploy = [d for d in month_umemploy if "2001" <= d['date'][:4] <= "2022"]
     for dic in filtered_month_umemploy:
         dic['date'] = dic['date'][0:7]
-        dic['date'] = int(dic['date'].replace("-", ""))
+
     return(filtered_month_umemploy)
 
 
@@ -59,16 +59,16 @@ def read_cpi():
     url2 = 'https://www.alphavantage.co/query?function=CPI&interval=monthly&apikey=8A43BBMGTP1CUXUK'
     r2 = requests.get(url2)
     data_cpi = r2.json()
-    month_cpi = data_cpi['data'] 
+    month_cpi = data_cpi['data']
 
     # filter the data in the range from 2001 to 2022
     filtered_month_cpi = [d for d in month_cpi if "2001" <= d['date'][:4] <= "2022"]
     for dic in filtered_month_cpi:
         dic['date'] = dic['date'][0:7]
-        dic['date'] = int(dic['date'].replace("-", ""))
+
     return(filtered_month_cpi)
 
-def read_interest_rate_marketable():
+def read_ir_marketable():
     url = "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v2/accounting/od/avg_interest_rates"
     params = {
         "fields": "record_date,security_desc,avg_interest_rate_amt",
@@ -99,9 +99,8 @@ def read_interest_rate_marketable():
             inner_d = dict()
             ym_data = re.findall(date_re, item['record_date'])
             for i in ym_data:
-                inner_d['record_date'] = int(i.replace('-', ''))
+                inner_d['date'] = i
 
-            inner_d['security_desc'] = item['security_desc']
             inner_d['avg_interest_rate_amt'] = item['avg_interest_rate_amt']
             l.append(inner_d)
     
@@ -109,7 +108,7 @@ def read_interest_rate_marketable():
 
     return filtered_l
 
-def read_interest_rate_non_marketable():
+def read_ir_non_marketable():
     url = "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v2/accounting/od/avg_interest_rates"
     params = {
         "fields": "record_date,security_desc,avg_interest_rate_amt",
@@ -140,9 +139,8 @@ def read_interest_rate_non_marketable():
             inner_d = dict()
             ym_data = re.findall(date_re, item['record_date'])
             for i in ym_data:
-                inner_d['record_date'] = int(i.replace('-', ''))
+                inner_d['date'] = i
 
-            inner_d['security_desc'] = item['security_desc']
             inner_d['avg_interest_rate_amt'] = item['avg_interest_rate_amt']
             l.append(inner_d)
     
@@ -161,7 +159,7 @@ def setUpDatabase(db_name): # function to set up database
 def create_layoff_table(cur,conn,df): 
 
     # create Layoff_Rate table in database
-    cur.execute("CREATE TABLE IF NOT EXISTS Layoff_Rate(id INTEGER PRIMARY KEY, date INTEGER, layoff_rate NUMBER)")
+    cur.execute("CREATE TABLE IF NOT EXISTS Layoff_Rate(id INTEGER PRIMARY KEY, date TEXT, layoff_rate NUMBER)")
     conn.commit()
 
 def add_to_layoff_table(cur,conn,df):
@@ -169,15 +167,118 @@ def add_to_layoff_table(cur,conn,df):
     result = cur.fetchone()
     if result[0] is None:
         # if there are no entries in the table, set the starting ID to 1
-        id = 1
+        id = 0
     else:
         id = result[0]
+
+    id += 1
 
     for i in range((id-1),(id+21)):
         date = df[i]['date']
         layoff = df[i]['value']
-        intkey = i+2
+        intkey = i+1
         cur.execute("""INSERT INTO Layoff_Rate (id, date, layoff_rate)VALUES (?, ?, ?)""", (intkey, date, layoff))
+    # Insert the entries into the 'Layoff_Rate' table
+    #commit changes
+    conn.commit()
+
+
+def create_ir_marketable_table(cur,conn,df): 
+
+    # create Layoff_Rate table in database
+    cur.execute("CREATE TABLE IF NOT EXISTS IR_Marketable (id INTEGER PRIMARY KEY, date TEXT, avg_interest_rate_amt NUMBER)")
+    conn.commit()
+
+def add_to_ir_marketable_table(cur,conn,df):
+    cur.execute("SELECT MAX(id) FROM IR_Marketable")
+    result = cur.fetchone()
+    if result[0] is None:
+        # if there are no entries in the table, set the starting ID to 1
+        id = 0
+    else:
+        id = result[0]
+
+    id += 1
+
+    for i in range((id-1),(id+21)):
+        date = df[i]['date']
+        avg_ir = df[i]['avg_interest_rate_amt']
+        intkey = i+1
+        cur.execute("""INSERT INTO IR_Marketable (id, date, avg_interest_rate_amt) VALUES (?, ?, ?)""", (intkey, date, avg_ir))
+    # Insert the entries into the 'Layoff_Rate' table
+    #commit changes
+    conn.commit()
+
+def create_ir_non_marketable_table(cur,conn,df): 
+
+    # create Layoff_Rate table in database
+    cur.execute("CREATE TABLE IF NOT EXISTS IR_Non_Marketable (id INTEGER PRIMARY KEY, date TEXT, avg_interest_rate_amt NUMBER)")
+    conn.commit()
+
+def add_to_ir_non_marketable_table(cur,conn,df):
+    cur.execute("SELECT MAX(id) FROM IR_Non_Marketable")
+    result = cur.fetchone()
+    if result[0] is None:
+        # if there are no entries in the table, set the starting ID to 1
+        id = 0
+    else:
+        id = result[0]
+
+    id += 1
+
+    for i in range((id-1),(id+21)):
+        date = df[i]['date']
+        avg_ir = df[i]['avg_interest_rate_amt']
+        intkey = i+1
+        cur.execute("""INSERT INTO IR_Non_Marketable (id, date, avg_interest_rate_amt) VALUES (?, ?, ?)""", (intkey, date, avg_ir))
+    # Insert the entries into the 'Layoff_Rate' table
+    #commit changes
+    conn.commit()
+
+def create_unemployment_table(cur,conn,df): 
+
+    # create Layoff_Rate table in database
+    cur.execute("CREATE TABLE IF NOT EXISTS Unemployment_Rate(id INTEGER PRIMARY KEY, date INTEGER, unemployment_rate NUMBER)")
+    conn.commit()
+
+def add_to_unemployment_table(cur,conn,df):
+    cur.execute("SELECT MAX(id) FROM Unemployment_Rate")
+    result = cur.fetchone()
+    if result[0] is None:
+        # if there are no entries in the table, set the starting ID to 1
+        id = 0
+    else:
+        id = result[0]
+    id += 1
+    for i in range((id-1),(id+21)):
+        date = df[i]['date']
+        unemployment = df[i]['value']
+        intkey = i+1
+        cur.execute("""INSERT INTO Unemployment_Rate (id, date, unemployment_rate)VALUES (?, ?, ?)""", (intkey, date, unemployment))
+    # Insert the entries into the 'Layoff_Rate' table
+    #commit changes
+    conn.commit()
+
+def create_cpi_table(cur,conn,df): 
+
+    # create Layoff_Rate table in database
+    cur.execute("CREATE TABLE IF NOT EXISTS Cpi_Rate(id INTEGER PRIMARY KEY, date INTEGER, cpi NUMBER)")
+    conn.commit()
+
+def add_to_cpi_table(cur,conn,df):
+    cur.execute("SELECT MAX(id) FROM Cpi_Rate")
+    result = cur.fetchone()
+    if result[0] is None:
+        # if there are no entries in the table, set the starting ID to 1
+        id = 0
+    else:
+        id = result[0]
+    id += 1
+    for i in range((id-1),(id+21)):
+        date = df[i]['date']
+        cpi = df[i]['value']
+        intkey = i+1
+        cur.execute("""INSERT INTO Cpi_Rate (id, date, cpi)VALUES (?, ?, ?)""", (intkey, date, cpi))
     # Insert the entries into the 'Layoff_Rate' table
     #commit changes
     conn.commit()
@@ -188,14 +289,22 @@ def main():
     lay_off_data = read_econdb(API)
     umempoylemnt_data=read_umempoylemnt()
     cpi_data=read_cpi()
+    ir_marketable_data = read_ir_marketable()
+    ir_non_marketable_data = read_ir_non_marketable()
 
     # set up database
     cur, conn = setUpDatabase('umemployment_data.db')
     # create Layoff_Rate table
     create_layoff_table(cur,conn,lay_off_data)
     add_to_layoff_table(cur,conn,lay_off_data)
-   
-
+    create_ir_marketable_table(cur,conn,ir_marketable_data)
+    add_to_ir_marketable_table(cur,conn,ir_marketable_data)
+    create_ir_non_marketable_table(cur,conn,ir_non_marketable_data)
+    add_to_ir_non_marketable_table(cur,conn,ir_non_marketable_data)
+    create_unemployment_table(cur,conn,umempoylemnt_data)
+    add_to_unemployment_table(cur,conn,umempoylemnt_data)
+    create_cpi_table(cur,conn,cpi_data)
+    add_to_cpi_table(cur,conn,cpi_data)
     
 
 if __name__ == "__main__":
