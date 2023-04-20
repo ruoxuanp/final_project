@@ -68,7 +68,7 @@ def read_cpi():
         dic['date'] = int(dic['date'].replace("-", ""))
     return(filtered_month_cpi)
 
-def read_avg_interest_rate():
+def read_interest_rate_marketable():
     url = "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v2/accounting/od/avg_interest_rates"
     params = {
         "fields": "record_date,security_desc,avg_interest_rate_amt",
@@ -95,7 +95,48 @@ def read_avg_interest_rate():
     date_re = '(\d{4}-\d{2})-\d{2}'
 
     for item in all_data:
-        if item['security_desc'] == 'Total Marketable' or item['security_desc'] == 'Total Non-marketable':
+        if item['security_desc'] == 'Total Marketable':
+            inner_d = dict()
+            ym_data = re.findall(date_re, item['record_date'])
+            for i in ym_data:
+                inner_d['record_date'] = int(i.replace('-', ''))
+
+            inner_d['security_desc'] = item['security_desc']
+            inner_d['avg_interest_rate_amt'] = item['avg_interest_rate_amt']
+            l.append(inner_d)
+    
+    filtered_l = [d for d in l if "2001" <= d['date'][:4] <= "2022"]
+
+    return filtered_l
+
+def read_interest_rate_non_marketable():
+    url = "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v2/accounting/od/avg_interest_rates"
+    params = {
+        "fields": "record_date,security_desc,avg_interest_rate_amt",
+        "page[number]": 1,
+        "page[size]": 100
+    }
+
+    all_data = []
+
+    while True:
+        r = requests.get(url, params=params)
+        parsed_data = r.json()
+
+        data_list = parsed_data['data']
+        all_data.extend(data_list)
+
+        # Check if there's a next page
+        if not parsed_data['links']['next'] == None:
+            params['page[number]'] += 1
+        else:
+            break
+
+    l = []
+    date_re = '(\d{4}-\d{2})-\d{2}'
+
+    for item in all_data:
+        if item['security_desc'] == 'Total Non-marketable':
             inner_d = dict()
             ym_data = re.findall(date_re, item['record_date'])
             for i in ym_data:
