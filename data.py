@@ -191,7 +191,7 @@ def add_to_layoff_table(cur,conn,df):
 
 def create_ir_marketable_table(cur,conn,df): 
 
-    # create Layoff_Rate table in database
+    # create IR_Marketable table in database
     cur.execute("CREATE TABLE IF NOT EXISTS IR_Marketable (id INTEGER PRIMARY KEY, date TEXT, avg_interest_rate_amt NUMBER)")
     conn.commit()
 
@@ -220,7 +220,7 @@ def add_to_ir_marketable_table(cur,conn,df):
 
 def create_ir_non_marketable_table(cur,conn,df): 
 
-    # create Layoff_Rate table in database
+    # create IR_Non_Marketable table in database
     cur.execute("CREATE TABLE IF NOT EXISTS IR_Non_Marketable (id INTEGER PRIMARY KEY, date TEXT, avg_interest_rate_amt NUMBER)")
     conn.commit()
 
@@ -249,7 +249,7 @@ def add_to_ir_non_marketable_table(cur,conn,df):
 
 def create_unemployment_table(cur,conn,df): 
 
-    # create Layoff_Rate table in database
+    # create Unemployment table in database
     cur.execute("CREATE TABLE IF NOT EXISTS Unemployment(id INTEGER PRIMARY KEY, date INTEGER, unemployment NUMBER)")
     conn.commit()
 
@@ -277,7 +277,7 @@ def add_to_unemployment_table(cur,conn,df):
 
 def create_cpi_table(cur,conn,df): 
 
-    # create Layoff_Rate table in database
+    # create Cpi_Rate table in database
     cur.execute("CREATE TABLE IF NOT EXISTS Cpi_Rate(id INTEGER PRIMARY KEY, date INTEGER, cpi NUMBER)")
     conn.commit()
 
