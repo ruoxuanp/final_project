@@ -5,6 +5,7 @@ import requests
 import csv
 import matplotlib
 import matplotlib.pyplot as plt
+import numpy as np
 
 def ConnectDatabase(db_name): # function to connect database
     path = os.path.dirname(os.path.abspath(__file__))
@@ -165,11 +166,12 @@ def main():
 
     fig3.savefig('layoff_vs_unemployment.png')
 
+    dates = np.asarray(ratio[3], dtype='datetime64[s]')
     fig4 = plt.figure(figsize=(10,8))
     ax4 = fig4.add_subplot(111)
-    line1, =ax4.plot(ratio[3], ratio[0], label = 'Layoff rate')
-    line2, =ax4.plot(ratio[3], ratio[1], label = 'Unemployment rate')
-    line3, =ax4.plot(ratio[3], ratio[2], label = 'Layoff/Unemployment ratio')
+    line1, =ax4.plot(dates, ratio[0], label = 'Layoff rate')
+    line2, =ax4.plot(dates, ratio[1], label = 'Unemployment rate')
+    line3, =ax4.plot(dates, ratio[2], label = 'Layoff/Unemployment ratio')
     ax4.legend(handles=[line1, line2, line3])
     ax4.set_xlabel('date')
     ax4.set_ylabel('rates')
