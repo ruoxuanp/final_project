@@ -60,7 +60,7 @@ def average_year_CPI(cur,conn):
         avg = round(sum/12,2)
         inner.append(year)
         inner.append(avg)
-        year_CPI.append(inner)
+        average.append(inner)
         year +=1
     
     csv_file = "year_average_CPI.csv"
@@ -117,13 +117,9 @@ def avg_year_IR_Non_Marketable(cur,conn):
 
 def main():
     cur, conn = ConnectDatabase('umemployment_data.db')
-    # ratio = retrive_umemployment_layoff(cur,conn)
-    # print(ratio)
-    # d = average_year_CPI(cur,conn)
-    # print(d)
+    ratio = retrive_umemployment_layoff(cur,conn)
+    d = average_year_CPI(cur,conn)
     IR = avg_year_IR_Non_Marketable(cur,conn)
-    print(IR)
-    pass
 
 
 if __name__ == "__main__":
